@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <cstring>
 
 Chip8::Chip8() {
     initialize();
@@ -24,4 +25,18 @@ void Chip8::initialize() {
 
     delay_timer = 0;
     sound_timer = 0;
+
+    loadFontset();
+
+    loadROM("games/PONG");
+
+    std::cout << "Chip8 initialized" << std::endl;
+}
+
+void Chip8::loadFontset() {
+    memcpy(memory.data() + FONTSET_MEMORY_START, fontset, sizeof(fontset));
+
+    std::cout << "Fontset loaded" << std::endl;
+    std::cout << "Fontset memory start: " << FONTSET_MEMORY_START << std::endl;
+    std::cout << "Fontset memory size: " << sizeof(fontset) << std::endl;
 }

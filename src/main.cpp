@@ -6,6 +6,7 @@
 #include <SDL3/SDL_main.h>
 
 int main(int argc, char* argv[]) {
+    Chip8 chip8 = Chip8();
 
     SDL_Window *window;                    // Declare a pointer
     bool done = false;
