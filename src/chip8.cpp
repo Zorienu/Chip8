@@ -195,43 +195,52 @@ void Chip8::alu_vx_vy() {
 
   switch (operation) {
   case (0x0): {
+    logOpcode("Set Vx = Vy");
     V[x] = V[y];
     break;
   }
   case (0x1): {
+    logOpcode("Set Vx |= Vy");
     V[x] |= V[y];
     break;
   }
   case (0x2): {
+    logOpcode("Set Vx &= Vy");
     V[x] &= V[y];
     break;
   }
   case (0x3): {
+    logOpcode("Set Vx ^= Vy");
     V[x] ^= V[y];
     break;
   }
   case (0x4): {
+    logOpcode("Set Vx = Vx + Vy and Vf = carry");
     uint16_t sum = V[x] + V[y];
     V[0xF] = (sum > 255) ? 1 : 0;
     V[x] = sum & 0xFF;
     break;
   }
   case (0x5): {
+    logOpcode("Set Vx = Vx - Vy and Vf = V[x] > V[y]");
     V[0xF] = (V[x] > V[y]) ? 1 : 0; // Store in Vf if not borrowed
     V[x] -= V[y];
     break;
   }
   case (0x6): {
+    logOpcode("Set Vx >>= 1 and Vf = Vx & 0x1");
     V[0xF] = V[x] & 0x1; // Store the dropped bit in Vf
     V[x] >>= 1;
     break;
   }
   case (0x7): {
+    logOpcode("Set Vx = Vy - Vx and Vf = Vy > Vx");
     V[0xF] = (V[y] > V[x]) ? 1 : 0; // Store in Vf if not borrowed
     V[x] = V[y] - V[x];
     break;
   }
   case (0xE): {
+    logOpcode("Set Vx <<= 1 and Vf = (Vx & 0x80) >> 7");
     V[0xF] = (V[x] & 0x80) >> 7; // Store the dropped bit in Vf (the 7th one)
     V[x] <<= 1;
     break;
@@ -253,18 +262,21 @@ void Chip8::skip_not_equal_vx_vy() {
 
 void Chip8::set_i() {
   uint16_t value = opcode & 0xFFF;
+  logOpcode("Set I = " + std::to_string(value));
   I = value;
   pc += 2;
 }
 
 void Chip8::set_pc_nnn_plus_v0() {
   uint16_t value = opcode & 0xFFF;
+  logOpcode("Set PC = V0 + " + std::to_string(value));
   pc = value + V[0x0];
 }
 
 void Chip8::random() {
   uint8_t value = opcode & 0xFF;
   uint8_t registerIdx = (opcode & 0xF00) >> 8;
+  logOpcode("Set V" + std::to_string(registerIdx) + " to random");
   V[registerIdx] = (rand() % 256) & value;
   pc += 2;
 }
@@ -274,6 +286,8 @@ void Chip8::draw() {
   uint8_t y = V[(opcode & 0x0F0) >> 4];
   uint8_t height = opcode & 0x00F;
 
+  logOpcode("Draw");
+
   V[0xF] = 0;
 
   for (int row = 0; row < height; row++) {
@@ -281,7 +295,8 @@ void Chip8::draw() {
     for (int col = 0; col < SPRITE_COLS; col++) {
       if ((sprite & (0x80 >> col)) != 0) {
         int index = (x + col + ((y + row) * VIDEO_WIDTH)) % VIDEO_SIZE;
-        if (gfx[index] == 1) V[0xF] = 1;
+        if (gfx[index] == 1)
+          V[0xF] = 1;
         gfx[index] ^= 1;
       }
     }
