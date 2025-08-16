@@ -49,7 +49,7 @@ void Chip8::loadROM(const std::string &path) {
     return;
   }
 
-  uint32_t size = file.tellg();
+  std::streamsize size = file.tellg();
   file.seekg(0, std::ios::beg);
   file.read((char *)memory.data() + ROM_MEMORY_START, size);
   file.close();
