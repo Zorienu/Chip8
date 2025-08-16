@@ -10,9 +10,9 @@
 #define VIDEO_WIDTH 64
 #define VIDEO_HEIGHT 32
 #define VIDEO_SIZE (VIDEO_WIDTH * VIDEO_HEIGHT)
-
 #define FONTSET_MEMORY_START 0x0
 #define ROM_MEMORY_START 0x200
+#define SPRITE_COLS 8
 
 enum class OpcodeType {
   DISPLAY = 0x0,
@@ -25,7 +25,10 @@ enum class OpcodeType {
   ADD_VX = 0x7000,
   ALU_VX_VY = 0x8000,
   SKIP_NOT_EQUAL_VX_VY = 0x9000,
-  SET_I = 0xA000
+  SET_I = 0xA000,
+  SET_PC_NNN_PLUS_V0 = 0xB000,
+  RANDOM = 0xC000,
+  DRAW = 0xD000,
 };
 
 class Chip8 {
@@ -43,6 +46,8 @@ private:
   void initialize();
   void loadFontset();
 
+  void logOpcode(const std::string &message);
+
   void display();
   void jump();
   void call();
@@ -54,6 +59,9 @@ private:
   void alu_vx_vy();
   void skip_not_equal_vx_vy();
   void set_i();
+  void set_pc_nnn_plus_v0();
+  void random();
+  void draw();
 
   // 2.3 Array for features
   std::array<uint8_t, MEMORY_SIZE> memory;
