@@ -1,9 +1,10 @@
 #include "chip8.h"
 #include <cstring>
 #include <fstream>
+#include <functional>
 #include <iostream>
+#include <unordered_map>
 #include <vector>
-
 
 Chip8::Chip8() { initialize(); }
 
@@ -30,6 +31,8 @@ void Chip8::initialize() {
   loadROM("./games/PONG");
 
   std::cout << "Chip8 initialized" << std::endl;
+
+  emulateCycle();
 }
 
 void Chip8::loadFontset() {
@@ -46,7 +49,7 @@ void Chip8::loadROM(const std::string &path) {
 
   if (!file.is_open()) {
     std::cerr << "Failed to open ROM file: " << path << std::endl;
-    return;
+    exit(1);
   }
 
   std::streamsize size = file.tellg();
@@ -60,4 +63,81 @@ void Chip8::loadROM(const std::string &path) {
   std::cout << "ROM memory size: " << size << std::endl;
   std::cout << "ROM memory first byte: " << std::hex
             << (int)memory[ROM_MEMORY_START + 1] << std::endl;
+}
+
+void Chip8::emulateCycle() {
+  opcode = memory[pc] << 8 | memory[pc + 1];
+  opcode = 0x00E0;
+
+  std::unordered_map<OpcodeType, std::function<void()>> instruction_type_map = {
+      {OpcodeType::DISPLAY, std::bind(&Chip8::display, this)},
+      {OpcodeType::JUMP, std::bind(&Chip8::jump, this)},
+      {OpcodeType::CALL, std::bind(&Chip8::call, this)},
+      {OpcodeType::SKIP_EQUAL, std::bind(&Chip8::skip_equal, this)},
+      {OpcodeType::SKIP_NOT_EQUAL, std::bind(&Chip8::skip_not_equal, this)},
+      {OpcodeType::SKIP_EQUAL_VX_VY, std::bind(&Chip8::skip_equal_vx_vy, this)},
+      {OpcodeType::SET_VX, std::bind(&Chip8::set_vx, this)},
+      {OpcodeType::ADD_VX, std::bind(&Chip8::add_vx, this)},
+      {OpcodeType::ALU_VX_VY, std::bind(&Chip8::alu_vx_vy, this)},
+      {OpcodeType::SKIP_NOT_EQUAL_VX_VY,
+       std::bind(&Chip8::skip_not_equal_vx_vy, this)},
+      {OpcodeType::SET_I, std::bind(&Chip8::set_i, this)}};
+
+  OpcodeType instruction_type = static_cast<OpcodeType>(opcode & 0xF000);
+  auto func = instruction_type_map.find(instruction_type)->second;
+  if (!func) {
+    std::cerr << "Unknown opcode: " << std::hex << opcode << std::endl;
+    exit(1);
+  }
+
+  func();
+}
+
+void Chip8::display() {
+  switch (opcode) {
+    case 0x00E0:
+      std::cout << "Opcode 0x00E0: Clear the screen" << std::endl;
+      gfx.fill(0);
+      drawFlag = true;
+      pc += 2;
+      return;
+    case 0x00EE:
+      // Return from subroutine so we substract from the stack pointer and set the pc to be the value at the top of the stack
+      // Which is the address of the next instruction to execute
+      std::cout << "Opcode 0x00EE: Return from subroutine" << std::endl;
+      pc = stack[--sp];
+      return;
+    default:
+      std::cerr << "Unknown 0x0000 opcode: " << std::hex << opcode << std::endl;
+  }
+}
+
+void Chip8::jump() {
+}
+
+void Chip8::call() {
+}
+
+void Chip8::skip_equal() {
+}
+
+void Chip8::skip_not_equal() {
+}
+
+void Chip8::skip_equal_vx_vy() {
+}
+
+void Chip8::set_vx() {
+}
+
+void Chip8::add_vx() {
+}
+
+void Chip8::alu_vx_vy() {
+}
+
+void Chip8::skip_not_equal_vx_vy() {
+}
+
+void Chip8::set_i() {
 }
