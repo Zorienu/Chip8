@@ -17,6 +17,7 @@ class Chip8 {
     public:
         // 2.5 Functions
         Chip8();
+        // 3.3 ROM loader
         void loadROM(const std::string& path);
         void emulateCycle();
 
