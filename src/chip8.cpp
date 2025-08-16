@@ -28,7 +28,7 @@ void Chip8::initialize() {
 
     loadFontset();
 
-    loadROM("games/PONG");
+    loadROM("./games/PONG");
 
     std::cout << "Chip8 initialized" << std::endl;
 }
@@ -39,4 +39,23 @@ void Chip8::loadFontset() {
     std::cout << "Fontset loaded" << std::endl;
     std::cout << "Fontset memory start: " << FONTSET_MEMORY_START << std::endl;
     std::cout << "Fontset memory size: " << sizeof(fontset) << std::endl;
+}
+
+void Chip8::loadROM(const std::string& path) {
+    std::ifstream file(path, std::ios::binary | std::ios::ate);
+
+    if (!file.is_open()) {
+        std::cerr << "Failed to open ROM file: " << path << std::endl;
+        return;
+    }
+
+    uint32_t size = file.tellg();
+    file.seekg(0, std::ios::beg);
+    file.read((char* )memory.data() + ROM_MEMORY_START, size);
+    file.close();
+
+    std::cout << "ROM loaded" << std::endl;
+    std::cout << "ROM memory start: " << ROM_MEMORY_START << std::endl;
+    std::cout << "ROM memory size: " << size << std::endl;
+    std::cout << "ROM memory first byte: " << std::hex << (int)memory[ROM_MEMORY_START + 1] << std::endl;
 }

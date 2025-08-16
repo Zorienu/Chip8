@@ -10,7 +10,8 @@
 #define VIDEO_HEIGHT 32
 #define VIDEO_SIZE (VIDEO_WIDTH * VIDEO_HEIGHT)
 
-#define FONTSET_MEMORY_START 0x00
+#define FONTSET_MEMORY_START 0x0
+#define ROM_MEMORY_START 0x200
 
 class Chip8 {
     public:
