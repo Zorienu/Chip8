@@ -37,7 +37,7 @@ void Chip8::loadFontset() {
     memcpy(memory.data() + FONTSET_MEMORY_START, fontset, sizeof(fontset));
 
     std::cout << "Fontset loaded" << std::endl;
-    std::cout << "Fontset memory start: " << FONTSET_MEMORY_START << std::endl;
+    std::cout << "Fontset memory start: " << std::hex << FONTSET_MEMORY_START << std::endl;
     std::cout << "Fontset memory size: " << sizeof(fontset) << std::endl;
 }
 
@@ -55,7 +55,7 @@ void Chip8::loadROM(const std::string& path) {
     file.close();
 
     std::cout << "ROM loaded" << std::endl;
-    std::cout << "ROM memory start: " << ROM_MEMORY_START << std::endl;
+    std::cout << "ROM memory start: " << std::hex << ROM_MEMORY_START << std::endl;
     std::cout << "ROM memory size: " << size << std::endl;
     std::cout << "ROM memory first byte: " << std::hex << (int)memory[ROM_MEMORY_START + 1] << std::endl;
 }
