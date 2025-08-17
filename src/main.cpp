@@ -4,6 +4,9 @@
 #include "chip8.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#include <thread>
+#include <iostream>
+#include <chrono>
 
 int main(int argc, char *argv[]) {
   Chip8 chip8 = Chip8();
@@ -14,9 +17,9 @@ int main(int argc, char *argv[]) {
   SDL_Init(SDL_INIT_VIDEO); // Initialize SDL3
 
   // Create an application window with the following settings:
-  window = SDL_CreateWindow("An SDL3 window", // window title
-                            640,              // width, in pixels
-                            480,              // height, in pixels
+  window = SDL_CreateWindow("Chip8 emulator", // window title
+                            VIDEO_WIDTH,              // width, in pixels
+                            VIDEO_HEIGHT,              // height, in pixels
                             SDL_WINDOW_OPENGL // flags - see below
   );
 
