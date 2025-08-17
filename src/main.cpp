@@ -38,6 +38,22 @@ int main(int argc, char *argv[]) {
       if (event.type == SDL_EVENT_QUIT) {
         done = true;
       }
+
+      if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP) {
+        bool pressed = event.type == SDL_EVENT_KEY_DOWN;
+        SDL_Scancode scancode = event.key.scancode;
+        for (int i = 0; i < KEYPAD_SIZE; i++) {
+          if (keymap[i] == scancode) {
+            chip8.keys[i] = pressed;
+            break;
+          }
+        }
+
+        for (int i = 0; i < KEYPAD_SIZE; i++) {
+          std::cout << std::to_string(chip8.keys[i]) << " ";
+        }
+        std::cout << std::endl;
+      }
     }
 
     // Do game logic, present a frame, etc.
