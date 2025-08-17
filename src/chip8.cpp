@@ -72,7 +72,6 @@ void Chip8::loadROM(const std::string &path) {
 
 void Chip8::emulateCycle() {
   opcode = memory[pc] << 8 | memory[pc + 1];
-  opcode = 0x00E0;
 
   std::unordered_map<OpcodeType, std::function<void()>> instruction_type_map = {
       {OpcodeType::DISPLAY, std::bind(&Chip8::display, this)},
