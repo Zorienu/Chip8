@@ -103,6 +103,14 @@ void Chip8::emulateCycle() {
   }
 
   func();
+
+  if (delay_timer > 0)
+    delay_timer--;
+  if (sound_timer > 0) {
+    sound_timer--;
+    if (sound_timer == 0)
+      std::cout << "BEEP!" << std::endl;
+  }
 }
 
 void Chip8::display() {
