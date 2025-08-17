@@ -29,6 +29,7 @@ enum class OpcodeType {
   SET_PC_NNN_PLUS_V0 = 0xB000,
   RANDOM = 0xC000,
   DRAW = 0xD000,
+  KEYPAD = 0xE000,
 };
 
 class Chip8 {
@@ -62,6 +63,7 @@ private:
   void set_pc_nnn_plus_v0();
   void random();
   void draw();
+  void keypad();
 
   // 2.3 Array for features
   std::array<uint8_t, MEMORY_SIZE> memory;

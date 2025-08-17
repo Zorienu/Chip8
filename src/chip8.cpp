@@ -92,6 +92,7 @@ void Chip8::emulateCycle() {
        std::bind(&Chip8::set_pc_nnn_plus_v0, this)},
       {OpcodeType::RANDOM, std::bind(&Chip8::random, this)},
       {OpcodeType::DRAW, std::bind(&Chip8::draw, this)},
+      {OpcodeType::KEYPAD, std::bind(&Chip8::keypad, this)},
   };
 
   OpcodeType instruction_type = static_cast<OpcodeType>(opcode & 0xF000);
@@ -304,4 +305,34 @@ void Chip8::draw() {
 
   drawFlag = true;
   pc += 2;
+}
+
+void Chip8::keypad() {
+  uint8_t operation = opcode & 0xFF;
+  uint8_t x = (opcode & 0xF00) >> 8;
+  uint8_t key = keys[V[x]];
+
+  switch (operation) {
+  case 0x9E: {
+    logOpcode("Key " + std::to_string(key) + " pressed, skipping");
+    if (key)
+      pc += 4;
+    else
+      pc += 2;
+    return;
+  }
+  case 0xA1: {
+    logOpcode("Key " + std::to_string(key) + " not pressed, skipping");
+    if (!key)
+      pc += 4;
+    else
+      pc += 2;
+    return;
+  }
+  default: {
+    std::cerr << "Unknown 0xE000 opcode: " << std::hex << opcode << std::endl;
+    pc += 2;
+    return;
+  }
+  }
 }
