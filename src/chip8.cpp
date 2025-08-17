@@ -29,11 +29,7 @@ void Chip8::initialize() {
 
   loadFontset();
 
-  loadROM("./games/PONG");
-
   std::cout << "Chip8 initialized" << std::endl;
-
-  emulateCycle();
 }
 
 void Chip8::logOpcode(const std::string &message) {
@@ -126,6 +122,7 @@ void Chip8::display() {
     // next instruction to execute
     logOpcode("Return from subroutine");
     pc = stack[--sp];
+    pc += 2;
     return;
   default:
     std::cerr << "Unknown 0x0000 opcode: " << std::hex << opcode << std::endl;
@@ -294,7 +291,7 @@ void Chip8::draw() {
   uint8_t y = V[(opcode & 0x0F0) >> 4];
   uint8_t height = opcode & 0x00F;
 
-  logOpcode("Draw");
+  logOpcode("Draw x: " + std::to_string(x) + ", y: " + std::to_string(y) + ", height: " + std::to_string(height) );
 
   V[0xF] = 0;
 

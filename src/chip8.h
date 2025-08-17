@@ -41,6 +41,7 @@ public:
   // 3.3 ROM loader
   void loadROM(const std::string &path);
   void emulateCycle();
+  bool drawFlag;
 
   std::array<uint8_t, VIDEO_SIZE> gfx;
   std::array<uint8_t, KEYPAD_SIZE> keys;
@@ -80,7 +81,6 @@ private:
   uint8_t sound_timer;
   uint16_t I;  // Index register
   uint16_t pc; // Program counter
-  bool drawFlag;
 
   // 3.2 Fonts: each for is 5 bytes and each byte represents a row of the font
   // For example the 0 is 0xF0, 0x90, 0x90, 0x90, 0xF0,

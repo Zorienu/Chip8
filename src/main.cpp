@@ -3,13 +3,30 @@
 
 #include "chip8.h"
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_events.h>
 #include <SDL3/SDL_main.h>
-#include <thread>
-#include <iostream>
+#include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3/SDL_scancode.h>
 #include <chrono>
+#include <cstdint>
+#include <iostream>
+#include <thread>
+
+const SDL_Scancode keymap[KEYPAD_SIZE] = {
+    SDL_SCANCODE_X, SDL_SCANCODE_1, SDL_SCANCODE_2, SDL_SCANCODE_3,
+    SDL_SCANCODE_Q, SDL_SCANCODE_W, SDL_SCANCODE_E, SDL_SCANCODE_A,
+    SDL_SCANCODE_S, SDL_SCANCODE_D, SDL_SCANCODE_Z, SDL_SCANCODE_C,
+    SDL_SCANCODE_4, SDL_SCANCODE_R, SDL_SCANCODE_F, SDL_SCANCODE_V};
 
 int main(int argc, char *argv[]) {
+  if (argc != 2) {
+    std::cerr << "Usage: chip8 <ROM file>" << std::endl;
+    return 1;
+  }
+
   Chip8 chip8 = Chip8();
+  chip8.loadROM(argv[1]);
 
   SDL_Window *window; // Declare a pointer
   bool done = false;
@@ -17,10 +34,10 @@ int main(int argc, char *argv[]) {
   SDL_Init(SDL_INIT_VIDEO); // Initialize SDL3
 
   // Create an application window with the following settings:
-  window = SDL_CreateWindow("Chip8 emulator", // window title
-                            VIDEO_WIDTH,              // width, in pixels
-                            VIDEO_HEIGHT,              // height, in pixels
-                            SDL_WINDOW_OPENGL // flags - see below
+  window = SDL_CreateWindow("Chip8 emulator",       // window title
+                            VIDEO_WIDTH * VIDEO_SCALE,  // width, in pixels
+                            VIDEO_HEIGHT * VIDEO_SCALE, // height, in pixels
+                            SDL_WINDOW_OPENGL       // flags
   );
 
   // Check that the window was successfully created
@@ -30,6 +47,11 @@ int main(int argc, char *argv[]) {
                  SDL_GetError());
     return 1;
   }
+
+  SDL_Renderer *renderer = SDL_CreateRenderer(window, NULL);
+  SDL_Texture *texture =
+      SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
+                        SDL_TEXTUREACCESS_STREAMING, VIDEO_WIDTH, VIDEO_HEIGHT);
 
   while (!done) {
     SDL_Event event;
@@ -57,12 +79,30 @@ int main(int argc, char *argv[]) {
     }
 
     // Do game logic, present a frame, etc.
+    chip8.emulateCycle();
+
+    if (chip8.drawFlag) {
+      chip8.drawFlag = false;
+
+      uint32_t pixels[VIDEO_WIDTH * VIDEO_HEIGHT];
+      for (int pixelIdx = 0; pixelIdx < VIDEO_WIDTH * VIDEO_HEIGHT;
+           pixelIdx++) {
+        pixels[pixelIdx] = chip8.gfx[pixelIdx] ? 0xFFFFFFFF : 0x0000FF00;
+      }
+
+      SDL_UpdateTexture(texture, nullptr, pixels,
+                        VIDEO_WIDTH * sizeof(uint32_t));
+      SDL_RenderClear(renderer);
+      SDL_RenderTexture(renderer, texture, nullptr, nullptr);
+      SDL_RenderPresent(renderer);
+    }
+    std::this_thread::sleep_for(std::chrono::microseconds(16667)); // ~60Hz
   }
 
-  // Close and destroy the window
+  SDL_DestroyTexture(texture);
+  SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
-
-  // Clean up
   SDL_Quit();
+
   return 0;
 }
