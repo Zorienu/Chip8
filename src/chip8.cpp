@@ -6,7 +6,6 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 Chip8::Chip8() { initialize(); }
 
@@ -93,6 +92,7 @@ void Chip8::emulateCycle() {
       {OpcodeType::RANDOM, std::bind(&Chip8::random, this)},
       {OpcodeType::DRAW, std::bind(&Chip8::draw, this)},
       {OpcodeType::KEYPAD, std::bind(&Chip8::keypad, this)},
+      {OpcodeType::TIMERS, std::bind(&Chip8::timers, this)},
   };
 
   OpcodeType instruction_type = static_cast<OpcodeType>(opcode & 0xF000);
@@ -343,4 +343,81 @@ void Chip8::keypad() {
     return;
   }
   }
+}
+
+void Chip8::timers() {
+  uint8_t operation = opcode & 0xFF;
+  uint8_t x = (opcode & 0xF00) >> 8;
+
+  switch (operation) {
+  case 0x07: {
+    logOpcode("Set V" + std::to_string(x) + " to delay_timer");
+    V[x] = delay_timer;
+    break;
+  }
+  case 0x0A: {
+    logOpcode("Wait for keypress and store the key index in V" +
+              std::to_string(x));
+    bool key_pressed = false;
+
+    for (int keyIdx = 0; keyIdx < KEYPAD_SIZE; keyIdx++) {
+      if (!keys[keyIdx])
+        continue;
+
+      V[x] = keyIdx;
+      key_pressed = true;
+      break;
+    }
+
+    if (key_pressed)
+      return; // Wait
+
+    break;
+  }
+  case 0x15: {
+    logOpcode("Set delay_timer to V" + std::to_string(x));
+    delay_timer = V[x];
+    break;
+  }
+  case 0x18: {
+    logOpcode("Set sound_timer to V" + std::to_string(x));
+    sound_timer = V[x];
+    break;
+  }
+  case 0x1E: {
+    logOpcode("Set I += V" + std::to_string(x));
+    I += V[x];
+    break;
+  }
+  case 0x29: {
+    logOpcode("Set I to the location of the sprite for digit V" +
+              std::to_string(x));
+    // TODO: investigate
+    I = V[x] * 5;
+    break;
+  }
+  case 0x33: {
+    logOpcode("Store BCD representation of V" + std::to_string(x) +
+              "in memory I, I+1 and I+2");
+    memory[I] = V[x] / 100;
+    memory[I + 1] = (V[x] / 10) % 10;
+    memory[I + 2] = V[x] % 10;
+    break;
+  }
+  case 0x55: {
+    logOpcode("Store V0 to V" + std::to_string(x) + " in memory starting at I");
+    memcpy(&memory[I], V.data(), x);
+    break;
+  }
+  case 0x65: {
+    logOpcode("Load memory starting at I into V0 to V" + std::to_string(x));
+    memcpy(V.data(), &memory[I], x);
+    break;
+  }
+  default: {
+    std::cerr << "Unknown 0xE000 opcode: " << std::hex << opcode << std::endl;
+  }
+  }
+
+  pc += 2;
 }

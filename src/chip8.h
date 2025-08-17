@@ -30,6 +30,7 @@ enum class OpcodeType {
   RANDOM = 0xC000,
   DRAW = 0xD000,
   KEYPAD = 0xE000,
+  TIMERS = 0xF000,
 };
 
 class Chip8 {
@@ -64,6 +65,7 @@ private:
   void random();
   void draw();
   void keypad();
+  void timers();
 
   // 2.3 Array for features
   std::array<uint8_t, MEMORY_SIZE> memory;
