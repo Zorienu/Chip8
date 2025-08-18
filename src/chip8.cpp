@@ -393,11 +393,13 @@ void Chip8::timers() {
     break;
   }
   case 0x33: {
-    logOpcode("Store BCD representation of V" + std::to_string(x) +
-              "in memory I, I+1 and I+2");
     memory[I] = V[x] / 100;
     memory[I + 1] = (V[x] / 10) % 10;
     memory[I + 2] = V[x] % 10;
+    logOpcode("Store BCD representation of V" + std::to_string(x) + "(" +
+              std::to_string(V[x]) + ") in memory I, I+1 and I+2 " +
+              std::to_string(memory[I]) + " " + std::to_string(memory[I + 1]) +
+              " " + std::to_string(memory[I + 2]));
     break;
   }
   case 0x55: {
