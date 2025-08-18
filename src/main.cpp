@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
       SDL_RenderTexture(renderer, texture, nullptr, nullptr);
       SDL_RenderPresent(renderer);
     }
-    std::this_thread::sleep_for(std::chrono::microseconds(16667)); // ~60Hz
+    std::this_thread::sleep_for(std::chrono::microseconds(2000)); // ~60Hz
   }
 
   SDL_DestroyTexture(texture);
