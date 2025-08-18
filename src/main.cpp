@@ -12,7 +12,6 @@
 #include <SDL3/SDL_scancode.h>
 #include <chrono>
 #include <cstddef>
-#include <cstdint>
 #include <iostream>
 #include <thread>
 
