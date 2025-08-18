@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
       uint32_t pixels[VIDEO_WIDTH * VIDEO_HEIGHT];
       for (int pixelIdx = 0; pixelIdx < VIDEO_WIDTH * VIDEO_HEIGHT;
            pixelIdx++) {
-        pixels[pixelIdx] = chip8.gfx[pixelIdx] ? 0xFFFFFFFF : 0x0000FF00;
+        pixels[pixelIdx] = chip8.gfx[pixelIdx] ? 0x0000FFFF : 0x00000000;
       }
 
       SDL_UpdateTexture(texture, nullptr, pixels,
