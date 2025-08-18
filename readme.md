@@ -1,5 +1,6 @@
 # CHIP-8 emulator
 Simple CHIP-8 emulator written in C++
+<img width="1282" height="665" alt="image" src="https://github.com/user-attachments/assets/2f60deda-a35d-4000-8c5e-e8f82e569c5f" />
 
 ## Features
  - Full opcode support
@@ -15,3 +16,4 @@ Simple CHIP-8 emulator written in C++
 ./run.sh
 ```
 Make sure `run.sh` has execution permissions
+
