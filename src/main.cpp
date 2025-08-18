@@ -5,10 +5,13 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_main.h>
+#include <SDL3/SDL_oldnames.h>
 #include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_scancode.h>
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <thread>
@@ -34,10 +37,10 @@ int main(int argc, char *argv[]) {
   SDL_Init(SDL_INIT_VIDEO); // Initialize SDL3
 
   // Create an application window with the following settings:
-  window = SDL_CreateWindow("Chip8 emulator",       // window title
+  window = SDL_CreateWindow("Chip8 emulator",           // window title
                             VIDEO_WIDTH * VIDEO_SCALE,  // width, in pixels
                             VIDEO_HEIGHT * VIDEO_SCALE, // height, in pixels
-                            SDL_WINDOW_OPENGL       // flags
+                            SDL_WINDOW_OPENGL           // flags
   );
 
   // Check that the window was successfully created
@@ -49,9 +52,6 @@ int main(int argc, char *argv[]) {
   }
 
   SDL_Renderer *renderer = SDL_CreateRenderer(window, NULL);
-  SDL_Texture *texture =
-      SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
-                        SDL_TEXTUREACCESS_STREAMING, VIDEO_WIDTH, VIDEO_HEIGHT);
 
   while (!done) {
     SDL_Event event;
@@ -84,22 +84,26 @@ int main(int argc, char *argv[]) {
     if (chip8.drawFlag) {
       chip8.drawFlag = false;
 
-      uint32_t pixels[VIDEO_WIDTH * VIDEO_HEIGHT];
+      SDL_FRect rect = {.x = 0, .y = 0, .w = VIDEO_SCALE, .h = VIDEO_SCALE};
+
       for (int pixelIdx = 0; pixelIdx < VIDEO_WIDTH * VIDEO_HEIGHT;
            pixelIdx++) {
-        pixels[pixelIdx] = chip8.gfx[pixelIdx] ? 0x0000FFFF : 0x00000000;
+        rect.x = (pixelIdx % VIDEO_WIDTH) * VIDEO_SCALE;
+        rect.y = (pixelIdx / VIDEO_WIDTH) * VIDEO_SCALE;
+        if (chip8.gfx[pixelIdx]) {
+          SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+          SDL_RenderFillRect(renderer, &rect);
+        } else {
+          SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+          SDL_RenderFillRect(renderer, &rect);
+        }
       }
 
-      SDL_UpdateTexture(texture, nullptr, pixels,
-                        VIDEO_WIDTH * sizeof(uint32_t));
-      SDL_RenderClear(renderer);
-      SDL_RenderTexture(renderer, texture, nullptr, nullptr);
       SDL_RenderPresent(renderer);
     }
-    std::this_thread::sleep_for(std::chrono::microseconds(2000)); // ~60Hz
+    std::this_thread::sleep_for(std::chrono::microseconds(1500));
   }
 
-  SDL_DestroyTexture(texture);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
