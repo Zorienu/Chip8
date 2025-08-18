@@ -291,7 +291,8 @@ void Chip8::draw() {
   uint8_t y = V[(opcode & 0x0F0) >> 4];
   uint8_t height = opcode & 0x00F;
 
-  logOpcode("Draw x: " + std::to_string(x) + ", y: " + std::to_string(y) + ", height: " + std::to_string(height) );
+  logOpcode("Draw x: " + std::to_string(x) + ", y: " + std::to_string(y) +
+            ", height: " + std::to_string(height));
 
   V[0xF] = 0;
 
