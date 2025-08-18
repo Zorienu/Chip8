@@ -404,12 +404,14 @@ void Chip8::timers() {
   }
   case 0x55: {
     logOpcode("Store V0 to V" + std::to_string(x) + " in memory starting at I");
-    memcpy(&memory[I], V.data(), x);
+    memcpy(&memory[I], V.data(), x + 1); // X is an index (v0, v1, ..., vn), not
+                                         // a quantity, so we should add 1
     break;
   }
   case 0x65: {
     logOpcode("Load memory starting at I into V0 to V" + std::to_string(x));
-    memcpy(V.data(), &memory[I], x);
+    memcpy(V.data(), &memory[I], x + 1); // X is an index (v0, v1, ..., vn), not
+                                         // a quantity, so we should add 1
     break;
   }
   default: {
